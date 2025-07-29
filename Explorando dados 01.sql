@@ -80,5 +80,47 @@ SELECT
 	StoreID
 	,SUM(OrderTotal) AS TOTAL_LOJA_1
 FROM Sales.[Order]
-WHERE StoreID = 1
+WHERE StoreID = 1 AND OrderDate BETWEEN '01-01-2012' AND '31-12-2012'
 GROUP BY StoreID
+
+-- No ano de 2012, quais são os principais vendedores da loja ID 1
+SELECT
+	SO.EmployeeID
+	,SE.FullName
+	,SUM(OrderTotal) AS VENDA_TOTAL_VENDEDOR
+FROM Sales.[Order] AS SO
+INNER JOIN SALES.Employee AS SE ON SE.EmployeeID = SO.EmployeeID
+WHERE SO.StoreID = 1 AND OrderDate BETWEEN '01-01-2012' AND '31-12-2012'
+GROUP BY SO.EmployeeID, SE.FullName
+
+-- Melhorando a visualização dos dados da tabela acima
+
+   -- Melhorando o número
+SELECT
+	SO.EmployeeID
+	,SE.FullName
+	,FORMAT(SUM(OrderTotal), 'C', 'en-US') AS VENDA_TOTAL_VENDEDOR
+FROM Sales.[Order] AS SO
+INNER JOIN SALES.Employee AS SE ON SE.EmployeeID = SO.EmployeeID
+WHERE SO.StoreID = 1 AND OrderDate BETWEEN '01-01-2012' AND '31-12-2012'
+GROUP BY SO.EmployeeID, SE.FullName
+
+  --Melhorando o nome
+SELECT
+	SO.EmployeeID
+	,CONCAT(TRIM(SUBSTRING(SE.FullName, CHARINDEX(',' ,SE.FullName)+1, LEN(SE.FullName))),' ',TRIM(SUBSTRING(SE.FullName,1,CHARINDEX(',' ,SE.FullName)-1))) AS NOME_SOBRENOME
+	,FORMAT(SUM(OrderTotal), 'C', 'en-US') AS VENDA_TOTAL_VENDEDOR 
+FROM Sales.[Order] AS SO
+INNER JOIN SALES.Employee AS SE ON SE.EmployeeID = SO.EmployeeID
+WHERE SO.StoreID = 1 AND OrderDate BETWEEN '01-01-2012' AND '31-12-2012'
+GROUP BY SO.EmployeeID, SE.FullName
+
+  -- Na tabela tem os dados de first name e last name, logo outra alternativa seria:
+ SELECT
+	SO.EmployeeID
+	,SE.FirstName + ' ' + SE.LastName AS NOME_SOBRENOME
+	,FORMAT(SUM(OrderTotal), 'C', 'en-US') AS VENDA_TOTAL_VENDEDOR 
+FROM Sales.[Order] AS SO
+INNER JOIN SALES.Employee AS SE ON SE.EmployeeID = SO.EmployeeID
+WHERE SO.StoreID = 1 AND OrderDate BETWEEN '01-01-2012' AND '31-12-2012'
+GROUP BY SO.EmployeeID, SE.FirstName + ' ' + SE.LastName
